@@ -120,23 +120,20 @@ void getname(){
             player1Move();
             displayBoard();
             if (checkWin('X')) {
-                displayBoard();
-                cout << "\n🎉 YOU WON! 🎉\n";
+                cout << "\n🎉 "<<player1<<" WON! 🎉\n";
                 return;
             }
             if (moves >= 9) break; // Prevent bot move if board is full
            if(multi == 1){
             player2Move();
-            displayBoard();
             if (checkWin('O')) {
                 displayBoard();
-                cout << "\n🎉 YOU WON! 🎉\n";
+                cout << "\n🎉 "<<player2<<" WON! 🎉\n";
                 return;
             }
            }
            else{
             botMove();
-            displayBoard();
             if (checkWin('O')) {
                 displayBoard();
                 cout << "\n💀 Bot WON! 💀\n";
@@ -152,7 +149,7 @@ void getname(){
 
 int main() {
     TicTacToe game;
-    int choice,choice1;
+    int choice;
 
     while (true) {
         cout << "Enter 1 to start or 2 to exit: ";

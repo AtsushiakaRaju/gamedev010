@@ -71,21 +71,82 @@ int multi;
     }
 
     void botMove() {
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_int_distribution<int> dist(0, 2);
-        int x, y;
-        while (true) {
-            x = dist(gen);
-            y = dist(gen);
-            if (isValidMove(x, y)) {
-                board[x][y] = 'O';
-                moves++;
-                cout << "Bot chose position: " << x << ", " << y << endl;
-                break;
+    // All possible winning lines
+    int winPatterns[8][3][2] = {
+        {{0,0},{0,1},{0,2}}, {{1,0},{1,1},{1,2}}, {{2,0},{2,1},{2,2}}, // Rows
+        {{0,0},{1,0},{2,0}}, {{0,1},{1,1},{2,1}}, {{0,2},{1,2},{2,2}}, // Cols
+        {{0,0},{1,1},{2,2}}, {{0,2},{1,1},{2,0}}                        // Diagonals
+    };
+
+    auto canWin = [&](char mark)->pair<int,int> {
+        // Check if 'mark' can win in next move
+        for (auto &pattern : winPatterns) {
+            int countMark = 0, countEmpty = 0;
+            pair<int,int> emptyCell;
+            for (auto &p : pattern) {
+                int x = p[0], y = p[1];
+                if (board[x][y] == mark) countMark++;
+                else if (board[x][y] == '-') { countEmpty++; emptyCell = {x,y}; }
             }
+            if (countMark == 2 && countEmpty == 1) return emptyCell;
+        }
+        return make_pair(-1,-1);
+    };
+
+    // 1️⃣ Try to win
+    auto move = canWin('O');
+    if (move.first != -1) {
+        board[move.first][move.second] = 'O';
+        moves++;
+        cout << "Bot plays to WIN at: " << move.first << ", " << move.second << endl;
+        displayBoard();
+        return;
+    }
+
+    // 2️⃣ Block player
+    move = canWin('X');
+    if (move.first != -1) {
+        board[move.first][move.second] = 'O';
+        moves++;
+        cout << "Bot BLOCKS at: " << move.first << ", " << move.second << endl;
+        displayBoard();
+        return;
+    }
+
+    // 3️⃣ Take center
+    if (board[1][1] == '-') {
+        board[1][1] = 'O';
+        moves++;
+        cout << "Bot takes CENTER" << endl;
+        displayBoard();
+        return;
+    }
+
+    // 4️⃣ Take a corner
+    int corners[4][2] = {{0,0},{0,2},{2,0},{2,2}};
+    for (auto &c : corners) {
+        if (board[c[0]][c[1]] == '-') {
+            board[c[0]][c[1]] = 'O';
+            moves++;
+            cout << "Bot takes CORNER at: " << c[0] << ", " << c[1] << endl;
+            displayBoard();
+            return;
         }
     }
+
+    // 5️⃣ Take any side
+    int sides[4][2] = {{0,1},{1,0},{1,2},{2,1}};
+    for (auto &s : sides) {
+        if (board[s[0]][s[1]] == '-') {
+            board[s[0]][s[1]] = 'O';
+            moves++;
+            cout << "Bot takes SIDE at: " << s[0] << ", " << s[1] << endl;
+            displayBoard();
+            return;
+        }
+    }
+}
+
 
     bool checkWin(char player) {
         // Check rows and columns
